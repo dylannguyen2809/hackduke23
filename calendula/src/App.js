@@ -1,31 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import ICalendarLink from "react-icalendar-link";
 import Success from './components/Success.js';
 import './App.css';
-import { Box, Container, Typography, Card, CardActionArea, CardContent, Autocomplete, TextField, Button, Stack, Paper } from '@mui/material';
-import Dropzone from 'react-dropzone'
-// Import React FilePond
-import { FilePond, registerPlugin } from 'react-filepond'
+import { Box, Container, Typography, Card, CardActionArea, CardContent, Autocomplete, TextField, Button, Stack, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { lightGreen } from '@mui/material/colors';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-
-// Import FilePond styles
-import 'filepond/dist/filepond.min.css'
-
-// Import the Image EXIF Orientation and Image Preview plugins
-// Note: These need to be installed separately
-// `npm i filepond-plugin-image-preview filepond-plugin-image-exif-orientation --save`
-import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation'
-import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
-import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
-import { light } from '@mui/material/styles/createPalette.js';
-
-// Register the plugins
-registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview)
+import DropzoneComponent from './components/Dropzone.js';
 
 // One time slot every 30 minutes.
 const timeSlots = Array.from(new Array(24 * 2)).map(
@@ -70,18 +53,9 @@ function App() {
   useEffect(() => {
   }, []);
 
-  function printState(){
-    console.log(taskFields);
-    console.log(startDate);
-    console.log(endDate);
-    console.log(sleepTimeStart);
-    console.log(sleepTimeEnd);
-    console.log(fileToBeSent[0]);
-  }
-
   function uploadFile(e) {
     e.preventDefault();
-    let file = fileToBeSent;
+    let file = fileToBeSent[0];
     const formData = new FormData();
     
     formData.append("file", file);
@@ -122,6 +96,7 @@ function App() {
             fontFamily: 'Poppins', 
             fontWeight: '200', 
             width: '100%',
+            paddingBottom: '50px',
           }}>
             <Box
             style={{
@@ -165,11 +140,55 @@ function App() {
                 <CardActionArea>
                   <CardContent>
                     <FileUploadIcon sx={{ color: lightGreen[700], fontSize:'80px'}}/>
-                    <input type="file" name="file" onChange={(e) => setFileToBeSent(e.target.files[0])}/>
+                    {/*<input type="file" name="file" onChange={(e) => setFileToBeSent(e.target.files[0])}/>*/}
+                    <DropzoneComponent onChange={setFileToBeSent}/>
                   </CardContent>
                 </CardActionArea>
               </Card>
             </Box>
+
+            <Accordion style={{
+                width: '600px',
+                margin: 'auto',
+                marginTop: '20px',
+                backgroundColor: '#F7F7F7'
+              }}>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography
+                    style={{
+                      textAlign: 'center',
+                      color: '#ACACAC', 
+                      fontSize: 15, 
+                      fontFamily: 'Poppins', 
+                      fontWeight: '200', 
+                      wordWrap: 'break-word',
+
+                    }}
+                    variant='h4'
+                  >
+                    How do download a file from Google Calendar?
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography
+                  style={{
+                    textAlign: 'left',
+                    color: '#ACACAC',
+                  }}>
+                  1. Open Google Calendar.<br/>
+                  2. In the top right, click the gear icon and select Settings.<br/>
+                  3. In the menu on the left, click Import & Export.<br/>
+                  4. Under "Settings for my calendars," select the calendar you wish to export.<br/>
+                  5. Under "Calendar settings," select "Export calendar."<br/>
+
+                  </Typography>
+                </AccordionDetails>
+              </Accordion>
+
             <Typography style={{
               color: '#41521F',
               fontFamily: 'Poppins',
@@ -202,7 +221,7 @@ function App() {
               fontSize: '20px',
               textAlign: 'center',
             }}>
-              Select a end date for the scheduling
+              Select an end date for the scheduling
             </Typography>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker label="Choose a date..."
@@ -225,7 +244,7 @@ function App() {
               fontSize: '20px',
               textAlign: 'center',
             }}>
-              What tasks do you want to get done this week? How much time would you like to allocate per task? </Typography>
+              What tasks do you want to get done? How much time would you like to allocate per task? </Typography>
             <form>
               {taskFields.map((form, index) => {
                 return (
@@ -256,12 +275,11 @@ function App() {
               fontSize: '20px',
               textAlign: 'center',
             }}>
-              What time would you like to start and and each day?
+              What time would you like to start and end each day?
             </Typography>
             <Stack direction="row" spacing={2}
             style={{
               margin: 'auto',
-              marginTop: '20px',
               paddingTop: '20px',
               paddingLeft: '35%'
             }}>
@@ -269,7 +287,6 @@ function App() {
                 color: '#41521F',
                 fontFamily: 'Poppins',
                 fontWeight: 'bold',
-                marginTop: '20px',
                 paddingTop: '15px',
                 fontSize: '20px',
                 textAlign: 'center',
@@ -313,7 +330,7 @@ function App() {
                   renderInput={(params) => <TextField {...params} label="Choose a time..."/>}
                 />
             </Stack>
-            <Button variant="contained" onClick={uploadFile}>generate schedule</Button>
+            <Button variant="contained" onClick={uploadFile} style={{backgroundColor: '#FD7E4B'}}>generate schedule</Button>
         </Container>
       }
       </div>
